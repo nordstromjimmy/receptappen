@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:receptappen/data/models/recipe.dart';
 
 import 'core/theme/app_theme.dart';
 import 'features/add_recipe/screens/add_recipe_screen.dart';
@@ -19,7 +20,10 @@ final _router = GoRouter(
       path: '/add-recipe',
       builder: (_, state) {
         final extra = state.extra as Map<String, dynamic>?;
-        return AddRecipeScreen(prefillUrl: extra?['url'] as String?);
+        return AddRecipeScreen(
+          prefillUrl: extra?['url'] as String?,
+          existingRecipe: extra?['recipe'] as Recipe?,
+        );
       },
     ),
   ],

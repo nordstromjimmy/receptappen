@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
-
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_strings.dart';
 import '../../../data/models/recipe.dart';
@@ -142,12 +141,12 @@ class _HeroAppBar extends ConsumerWidget {
     return SliverAppBar(
       expandedHeight: 220,
       pinned: true,
-      backgroundColor: AppColors.background,
+      //backgroundColor: AppColors.background,
       leading: IconButton(
         icon: Container(
           padding: const EdgeInsets.all(6),
           decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.9),
+            color: Colors.black.withValues(alpha: 0.9),
             shape: BoxShape.circle,
           ),
           child: const Icon(Icons.arrow_back, size: 18),
@@ -159,7 +158,7 @@ class _HeroAppBar extends ConsumerWidget {
           icon: Container(
             padding: const EdgeInsets.all(6),
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.9),
+              color: Colors.black.withValues(alpha: 0.9),
               shape: BoxShape.circle,
             ),
             child: const Icon(Icons.edit_outlined, size: 18),
@@ -236,19 +235,19 @@ class _MetaChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: AppColors.primary,
         borderRadius: BorderRadius.circular(10),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 14, color: AppColors.textSecondary),
+          Icon(icon, size: 14, color: Colors.white),
           const SizedBox(width: 5),
           Text(
             label,
             style: const TextStyle(
               fontSize: 12,
-              color: AppColors.textSecondary,
+              color: Colors.white,
               fontWeight: FontWeight.w500,
             ),
           ),
@@ -274,28 +273,24 @@ class _SourceLink extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          color: AppColors.primary,
           borderRadius: BorderRadius.circular(10),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.link, size: 14, color: AppColors.textSecondary),
+            const Icon(Icons.link, size: 14, color: Colors.white),
             const SizedBox(width: 6),
             Text(
               recipe.sourceName ?? AppStrings.openSource,
               style: const TextStyle(
                 fontSize: 13,
-                color: AppColors.primary,
+                color: Colors.white,
                 fontWeight: FontWeight.w500,
               ),
             ),
             const SizedBox(width: 4),
-            const Icon(
-              Icons.open_in_new,
-              size: 12,
-              color: AppColors.textSecondary,
-            ),
+            const Icon(Icons.open_in_new, size: 12, color: Colors.white),
           ],
         ),
       ),

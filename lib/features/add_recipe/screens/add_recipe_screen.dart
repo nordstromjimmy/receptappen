@@ -180,7 +180,7 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
           style: const TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w500,
-            color: AppColors.textPrimary,
+            color: AppColors.textSecondary,
           ),
         ),
         actions: [
@@ -254,7 +254,7 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
 
             // ── Category dropdown ───────────────────────────
             DropdownButtonFormField<RecipeCategory>(
-              value: _category,
+              initialValue: _category,
               decoration: const InputDecoration(
                 labelText: AppStrings.fieldCategory,
               ),
