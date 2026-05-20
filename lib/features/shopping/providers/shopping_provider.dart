@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:receptappen/data/models/shopping_item.dart';
 
-import '../../../data/repositories/recipe_repository.dart';
+import '../../../../../data/repositories/recipe_repository.dart';
 
 const _kShoppingKey = 'shopping_v1';
 

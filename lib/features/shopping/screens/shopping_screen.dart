@@ -5,7 +5,7 @@ import 'package:receptappen/features/home/providers/recipes_provider.dart';
 import '../../../../../core/constants/app_colors.dart';
 import '../../../../../data/models/recipe.dart';
 
-import '../../../providers/shopping_provider.dart';
+import '../providers/shopping_provider.dart';
 
 class ShoppingScreen extends ConsumerWidget {
   const ShoppingScreen({super.key});
