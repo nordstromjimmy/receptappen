@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:receptappen/features/profile/screens/profile_screen.dart';
-import 'package:receptappen/screens/shopping_screen.dart';
+import 'package:receptappen/features/shopping/screens/shopping_screen.dart';
 import 'package:receptappen/shared/widgets/app_bottom_nav_bar.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_strings.dart';

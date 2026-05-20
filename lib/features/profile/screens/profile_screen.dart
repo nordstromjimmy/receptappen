@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import '../../../core/constants/app_colors.dart';
@@ -430,7 +431,25 @@ class _DataRow extends StatelessWidget {
 
 // ── About card ─────────────────────────────────────────────────────────────
 
-class _AboutCard extends StatelessWidget {
+class _AboutCard extends StatefulWidget {
+  @override
+  State<_AboutCard> createState() => _AboutCardState();
+}
+
+class _AboutCardState extends State<_AboutCard> {
+  String _version = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadVersion();
+  }
+
+  Future<void> _loadVersion() async {
+    final info = await PackageInfo.fromPlatform();
+    if (mounted) setState(() => _version = info.version);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -449,7 +468,7 @@ class _AboutCard extends StatelessWidget {
               color: AppColors.primary.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Icon(
+            child: const Icon(
               Icons.restaurant_outlined,
               size: 22,
               color: AppColors.primary,
@@ -463,9 +482,12 @@ class _AboutCard extends StatelessWidget {
                 'Matrecept',
                 style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
               ),
-              const Text(
-                'Version 1.0.0',
-                style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
+              Text(
+                _version.isEmpty ? '–' : 'Version $_version',
+                style: const TextStyle(
+                  fontSize: 12,
+                  color: AppColors.textSecondary,
+                ),
               ),
             ],
           ),

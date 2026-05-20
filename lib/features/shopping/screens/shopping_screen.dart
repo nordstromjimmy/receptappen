@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:receptappen/data/models/shopping_item.dart';
 import 'package:receptappen/features/home/providers/recipes_provider.dart';
-import '../../../core/constants/app_colors.dart';
-import '../../../data/models/recipe.dart';
+import '../../../../../core/constants/app_colors.dart';
+import '../../../../../data/models/recipe.dart';
 
-import '../providers/shopping_provider.dart';
+import '../../../providers/shopping_provider.dart';
 
 class ShoppingScreen extends ConsumerWidget {
   const ShoppingScreen({super.key});
@@ -39,7 +39,7 @@ class ShoppingScreen extends ConsumerWidget {
                         const SizedBox(height: 2),
                         Text(
                           totalCount == 0
-                              ? 'Listan är tom'
+                              ? ''
                               : '$checkedCount av $totalCount ingredienser',
                           style: const TextStyle(
                             fontSize: 13,
