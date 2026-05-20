@@ -326,6 +326,7 @@ class _ShoppingFabState extends ConsumerState<_ShoppingFab>
 
         // ── Main FAB ─────────────────────────────────────
         FloatingActionButton(
+          heroTag: 'shopping_fab',
           onPressed: _toggle,
           backgroundColor: AppColors.primary,
           child: AnimatedRotation(
@@ -364,9 +365,9 @@ class _ShoppingFabState extends ConsumerState<_ShoppingFab>
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (_) => Padding(
+      builder: (sheetContext) => Padding(
         padding: EdgeInsets.only(
-          bottom: MediaQuery.of(context).viewInsets.bottom,
+          bottom: MediaQuery.of(sheetContext).viewInsets.bottom,
         ),
         child: SafeArea(
           child: Container(

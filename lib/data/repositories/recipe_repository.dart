@@ -1,71 +1,52 @@
 import 'dart:convert';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
+import '../../main.dart';
 import '../models/recipe.dart';
 
-const _kRecipesKey = 'recipes_v1';
-
-// ── Providers ──────────────────────────────────────────────────────────────
-
-/// Overridden in main.dart with the real SharedPreferences instance.
-final sharedPreferencesProvider = Provider<SharedPreferences>(
-  (_) => throw UnimplementedError('sharedPreferencesProvider not overridden'),
-);
+// ── Provider ───────────────────────────────────────────────────────────────
 
 final recipeRepositoryProvider = Provider<RecipeRepository>((ref) {
-  return RecipeRepository(ref.watch(sharedPreferencesProvider));
+  return RecipeRepository(Hive.box<String>(kRecipesBox));
 });
 
 // ── Repository ─────────────────────────────────────────────────────────────
 
 class RecipeRepository {
-  RecipeRepository(this._prefs);
+  RecipeRepository(this._box);
 
-  final SharedPreferences _prefs;
+  final Box<String> _box;
 
   // ── Read ──────────────────────────────────────────────────
 
   List<Recipe> getAll() {
-    final raw = _prefs.getString(_kRecipesKey);
-    if (raw == null) return [];
-    final list = json.decode(raw) as List;
-    return list.map((e) => Recipe.fromJson(e as Map<String, dynamic>)).toList();
+    return _box.values
+        .map((raw) => Recipe.fromJson(json.decode(raw) as Map<String, dynamic>))
+        .toList()
+      ..sort((a, b) => b.createdAt.compareTo(a.createdAt)); // newest first
   }
 
-  Recipe? getById(String id) => getAll().where((r) => r.id == id).firstOrNull;
+  Recipe? getById(String id) {
+    final raw = _box.get(id);
+    if (raw == null) return null;
+    return Recipe.fromJson(json.decode(raw) as Map<String, dynamic>);
+  }
 
   // ── Write ─────────────────────────────────────────────────
 
   Future<void> save(Recipe recipe) async {
-    final recipes = getAll();
-    final idx = recipes.indexWhere((r) => r.id == recipe.id);
-    if (idx == -1) {
-      recipes.insert(0, recipe); // newest first
-    } else {
-      recipes[idx] = recipe;
-    }
-    await _persist(recipes);
+    await _box.put(recipe.id, json.encode(recipe.toJson()));
   }
 
   Future<void> delete(String id) async {
-    final recipes = getAll()..removeWhere((r) => r.id == id);
-    await _persist(recipes);
+    await _box.delete(id);
   }
 
   Future<void> toggleFavorite(String id) async {
-    final recipes = getAll();
-    final idx = recipes.indexWhere((r) => r.id == id);
-    if (idx == -1) return;
-    recipes[idx] = recipes[idx].copyWith(isFavorite: !recipes[idx].isFavorite);
-    await _persist(recipes);
-  }
-
-  // ── Internal ──────────────────────────────────────────────
-
-  Future<void> _persist(List<Recipe> recipes) async {
-    final encoded = json.encode(recipes.map((r) => r.toJson()).toList());
-    await _prefs.setString(_kRecipesKey, encoded);
+    final recipe = getById(id);
+    if (recipe == null) return;
+    await save(recipe.copyWith(isFavorite: !recipe.isFavorite));
   }
 }

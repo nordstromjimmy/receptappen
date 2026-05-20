@@ -3,10 +3,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../core/constants/app_colors.dart';
-import '../../../core/constants/app_strings.dart';
-import '../../../data/models/recipe.dart';
-import '../../home/providers/recipes_provider.dart';
+import '../../../../core/constants/app_colors.dart';
+import '../../../../core/constants/app_strings.dart';
+import '../../../../data/models/recipe.dart';
+import '../../../home/providers/recipes_provider.dart';
 
 class AddRecipeScreen extends ConsumerStatefulWidget {
   const AddRecipeScreen({super.key, this.prefillUrl, this.existingRecipe});
@@ -331,8 +331,7 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
                       child: TextFormField(
                         controller: e.value,
                         decoration: InputDecoration(
-                          hintText:
-                              '${AppStrings.fieldIngredient} ${e.key + 1}',
+                          hintText: AppStrings.fieldIngredient,
                         ),
                         textCapitalization: TextCapitalization.sentences,
                       ),

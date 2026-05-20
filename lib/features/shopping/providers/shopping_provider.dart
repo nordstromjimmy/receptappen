@@ -1,34 +1,60 @@
 import 'dart:convert';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:receptappen/data/models/shopping_item.dart';
 
-import '../../../../../data/repositories/recipe_repository.dart';
+import '../../../main.dart';
 
-const _kShoppingKey = 'shopping_v1';
+// ── Provider ───────────────────────────────────────────────────────────────
+
+final shoppingProvider = NotifierProvider<ShoppingNotifier, List<ShoppingItem>>(
+  ShoppingNotifier.new,
+);
+
+// Grouped: { recipeName / 'Övrigt' → [items] }
+final groupedShoppingProvider = Provider<Map<String, List<ShoppingItem>>>((
+  ref,
+) {
+  final items = ref.watch(shoppingProvider);
+  final map = <String, List<ShoppingItem>>{};
+  for (final item in items) {
+    final key = item.sourceRecipeName ?? 'Övrigt';
+    map.putIfAbsent(key, () => []).add(item);
+  }
+  return map;
+});
+
+final checkedCountProvider = Provider<int>(
+  (ref) => ref.watch(shoppingProvider).where((i) => i.isChecked).length,
+);
+
+// ── Notifier ───────────────────────────────────────────────────────────────
 
 class ShoppingNotifier extends Notifier<List<ShoppingItem>> {
+  Box<String> get _box => Hive.box<String>(kShoppingBox);
+
   @override
   List<ShoppingItem> build() => _load();
 
   // ── Read ──────────────────────────────────────────────────
 
   List<ShoppingItem> _load() {
-    final prefs = ref.read(sharedPreferencesProvider);
-    final raw = prefs.getString(_kShoppingKey);
-    if (raw == null) return [];
-    final list = json.decode(raw) as List;
-    return list
-        .map((e) => ShoppingItem.fromJson(e as Map<String, dynamic>))
+    return _box.values
+        .map(
+          (raw) =>
+              ShoppingItem.fromJson(json.decode(raw) as Map<String, dynamic>),
+        )
         .toList();
   }
 
   // ── Write ─────────────────────────────────────────────────
 
   Future<void> _persist() async {
-    final prefs = ref.read(sharedPreferencesProvider);
-    final encoded = json.encode(state.map((i) => i.toJson()).toList());
-    await prefs.setString(_kShoppingKey, encoded);
+    await _box.clear();
+    for (final item in state) {
+      await _box.put(item.id, json.encode(item.toJson()));
+    }
   }
 
   Future<void> addItem(
@@ -52,7 +78,13 @@ class ShoppingNotifier extends Notifier<List<ShoppingItem>> {
     required String recipeName,
     required List<String> ingredients,
   }) async {
-    final items = ingredients
+    final existingNames = state
+        .where((i) => i.sourceRecipeId == recipeId)
+        .map((i) => i.name)
+        .toSet();
+
+    final newItems = ingredients
+        .where((ing) => !existingNames.contains(ing))
         .map(
           (ing) => ShoppingItem(
             name: ing,
@@ -62,14 +94,6 @@ class ShoppingNotifier extends Notifier<List<ShoppingItem>> {
         )
         .toList();
 
-    final existingNames = state
-        .where((i) => i.sourceRecipeId == recipeId)
-        .map((i) => i.name)
-        .toSet();
-
-    final newItems = items
-        .where((i) => !existingNames.contains(i.name))
-        .toList();
     state = [...state, ...newItems];
     await _persist();
   }
@@ -93,27 +117,6 @@ class ShoppingNotifier extends Notifier<List<ShoppingItem>> {
 
   Future<void> clearAll() async {
     state = [];
-    await _persist();
+    await _box.clear();
   }
 }
-
-final shoppingProvider = NotifierProvider<ShoppingNotifier, List<ShoppingItem>>(
-  ShoppingNotifier.new,
-);
-
-// Grouped: { recipeName/Övrigt → [items] }
-final groupedShoppingProvider = Provider<Map<String, List<ShoppingItem>>>((
-  ref,
-) {
-  final items = ref.watch(shoppingProvider);
-  final map = <String, List<ShoppingItem>>{};
-  for (final item in items) {
-    final key = item.sourceRecipeName ?? 'Övrigt';
-    map.putIfAbsent(key, () => []).add(item);
-  }
-  return map;
-});
-
-final checkedCountProvider = Provider<int>(
-  (ref) => ref.watch(shoppingProvider).where((i) => i.isChecked).length,
-);

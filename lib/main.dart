@@ -1,17 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+
 import 'app.dart';
-import 'data/repositories/recipe_repository.dart';
+
+const String kRecipesBox = 'recipes_box';
+const String kShoppingBox = 'shopping_box';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Lock to portrait mode
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
 
-  // Make status bar transparent for immersive look
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
@@ -19,12 +20,10 @@ void main() async {
     ),
   );
 
-  final prefs = await SharedPreferences.getInstance();
+  // ── Hive init ────────────────────────────────────────────
+  await Hive.initFlutter();
+  await Hive.openBox<String>(kRecipesBox);
+  await Hive.openBox<String>(kShoppingBox);
 
-  runApp(
-    ProviderScope(
-      overrides: [sharedPreferencesProvider.overrideWithValue(prefs)],
-      child: const MatreceptApp(),
-    ),
-  );
+  runApp(const ProviderScope(child: MatreceptApp()));
 }

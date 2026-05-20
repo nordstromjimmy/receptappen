@@ -28,6 +28,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     return Scaffold(
       floatingActionButton: _navIndex == 0
           ? FloatingActionButton(
+              heroTag: 'home_fab',
               onPressed: () => context.push('/add-recipe'),
               backgroundColor: AppColors.primary,
               child: const Icon(Icons.add, color: Colors.white),

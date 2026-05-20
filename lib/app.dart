@@ -3,10 +3,10 @@ import 'package:go_router/go_router.dart';
 
 import 'core/theme/app_theme.dart';
 import 'data/models/recipe.dart';
-import 'features/add_recipe/screens/add_recipe_screen.dart';
+import 'features/recipes/add_recipe/screens/add_recipe_screen.dart';
 import 'features/explore/screens/explore_screen.dart';
 import 'features/home/screens/home_screen.dart';
-import 'features/recipe_detail/screens/recipe_detail_screen.dart';
+import 'features/recipes/recipe_detail/screens/recipe_detail_screen.dart';
 
 final _router = GoRouter(
   initialLocation: '/',
