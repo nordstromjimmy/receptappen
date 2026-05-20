@@ -80,7 +80,7 @@ class Recipe {
     return (prepTimeMinutes ?? 0) + (cookTimeMinutes ?? 0);
   }
 
-  bool get hasImage => imageUrl != null && imageUrl!.isNotEmpty;
+  bool get hasImage => imageUrl != null && imageUrl!.trim().isNotEmpty;
   bool get hasSource => sourceUrl != null && sourceUrl!.isNotEmpty;
 
   // ── CopyWith ────────────────────────────────────────────
