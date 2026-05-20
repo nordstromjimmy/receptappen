@@ -33,98 +33,114 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
     }
 
     return Scaffold(
-      body: CustomScrollView(
-        slivers: [
-          _HeroAppBar(recipe: recipe),
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // ── Title & favorite ──────────────────────
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: Text(
-                          recipe.name,
-                          style: Theme.of(context).textTheme.headlineSmall
-                              ?.copyWith(
-                                fontWeight: FontWeight.w500,
-                                color: Theme.of(context).colorScheme.onSurface,
-                              ),
+      body: SafeArea(
+        child: CustomScrollView(
+          slivers: [
+            _HeroAppBar(recipe: recipe),
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // ── Title & favorite ──────────────────────
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            recipe.name,
+                            style: Theme.of(context).textTheme.headlineSmall
+                                ?.copyWith(
+                                  fontWeight: FontWeight.w500,
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurface,
+                                ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        GestureDetector(
+                          onTap: () => context.push(
+                            '/add-recipe',
+                            extra: {'recipe': recipe},
+                          ),
+                          child: const Icon(
+                            Icons.edit_outlined,
+                            size: 24,
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
+                        const SizedBox(width: 18),
+                        _FavoriteButton(recipeId: recipe.id),
+                      ],
+                    ),
+
+                    if (recipe.description != null) ...[
+                      const SizedBox(height: 8),
+                      Text(
+                        recipe.description!,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: AppColors.textSecondary,
+                          height: 1.5,
                         ),
                       ),
-                      const SizedBox(width: 8),
-                      _FavoriteButton(recipe: recipe),
                     ],
-                  ),
 
-                  if (recipe.description != null) ...[
-                    const SizedBox(height: 8),
-                    Text(
-                      recipe.description!,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        color: AppColors.textSecondary,
-                        height: 1.5,
-                      ),
-                    ),
-                  ],
+                    const SizedBox(height: 16),
 
-                  const SizedBox(height: 16),
+                    // ── Meta chips ────────────────────────────
+                    _MetaChips(recipe: recipe),
 
-                  // ── Meta chips ────────────────────────────
-                  _MetaChips(recipe: recipe),
+                    // ── Source link ───────────────────────────
+                    if (recipe.hasSource) ...[
+                      const SizedBox(height: 12),
+                      _SourceLink(recipe: recipe),
+                    ],
 
-                  // ── Source link ───────────────────────────
-                  if (recipe.hasSource) ...[
-                    const SizedBox(height: 12),
-                    _SourceLink(recipe: recipe),
-                  ],
-
-                  const SizedBox(height: 24),
-
-                  // ── Ingredients ───────────────────────────
-                  if (recipe.ingredients.isNotEmpty) ...[
-                    _SectionTitle(AppStrings.ingredients),
-                    const SizedBox(height: 10),
-                    ...recipe.ingredients.asMap().entries.map(
-                      (e) => _IngredientRow(
-                        index: e.key,
-                        text: e.value,
-                        isChecked: _checkedIngredients.contains(e.key),
-                        onToggle: () => setState(() {
-                          if (_checkedIngredients.contains(e.key)) {
-                            _checkedIngredients.remove(e.key);
-                          } else {
-                            _checkedIngredients.add(e.key);
-                          }
-                        }),
-                      ),
-                    ),
                     const SizedBox(height: 24),
-                  ],
 
-                  // ── Instructions ──────────────────────────
-                  if (recipe.instructions.isNotEmpty) ...[
-                    _SectionTitle(AppStrings.instructions),
-                    const SizedBox(height: 10),
-                    ...recipe.instructions.asMap().entries.map(
-                      (e) => _InstructionRow(step: e.key + 1, text: e.value),
-                    ),
-                    const SizedBox(height: 24),
-                  ],
+                    // ── Ingredients ───────────────────────────
+                    if (recipe.ingredients.isNotEmpty) ...[
+                      _SectionTitle(AppStrings.ingredients),
+                      const SizedBox(height: 10),
+                      ...recipe.ingredients.asMap().entries.map(
+                        (e) => _IngredientRow(
+                          index: e.key,
+                          text: e.value,
+                          isChecked: _checkedIngredients.contains(e.key),
+                          onToggle: () => setState(() {
+                            if (_checkedIngredients.contains(e.key)) {
+                              _checkedIngredients.remove(e.key);
+                            } else {
+                              _checkedIngredients.add(e.key);
+                            }
+                          }),
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                    ],
 
-                  // ── Delete ────────────────────────────────
-                  _DeleteButton(recipe: recipe),
-                  const SizedBox(height: 40),
-                ],
+                    // ── Instructions ──────────────────────────
+                    if (recipe.instructions.isNotEmpty) ...[
+                      _SectionTitle(AppStrings.instructions),
+                      const SizedBox(height: 10),
+                      ...recipe.instructions.asMap().entries.map(
+                        (e) => _InstructionRow(step: e.key + 1, text: e.value),
+                      ),
+                      const SizedBox(height: 24),
+                    ],
+
+                    // ── Delete ────────────────────────────────
+                    _DeleteButton(recipe: recipe),
+                    const SizedBox(height: 40),
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -153,20 +169,7 @@ class _HeroAppBar extends ConsumerWidget {
         ),
         onPressed: () => context.pop(),
       ),
-      actions: [
-        IconButton(
-          icon: Container(
-            padding: const EdgeInsets.all(6),
-            decoration: BoxDecoration(
-              color: Colors.black.withValues(alpha: 0.9),
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(Icons.edit_outlined, size: 18),
-          ),
-          onPressed: () =>
-              context.push('/add-recipe', extra: {'recipe': recipe}),
-        ),
-      ],
+
       flexibleSpace: FlexibleSpaceBar(
         background: recipe.hasImage
             ? CachedNetworkImage(
@@ -432,21 +435,27 @@ class _InstructionRow extends StatelessWidget {
 // ── Favorite button ────────────────────────────────────────────────────────
 
 class _FavoriteButton extends ConsumerWidget {
-  const _FavoriteButton({required this.recipe});
-  final Recipe recipe;
+  const _FavoriteButton({required this.recipeId});
+  final String recipeId;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final isFavorite = ref.watch(
+      recipesProvider.select(
+        (recipes) => recipes
+            .firstWhere((r) => r.id == recipeId, orElse: () => recipes.first)
+            .isFavorite,
+      ),
+    );
+
     return GestureDetector(
-      onTap: () => ref.read(recipesProvider.notifier).toggleFavorite(recipe.id),
+      onTap: () => ref.read(recipesProvider.notifier).toggleFavorite(recipeId),
       child: AnimatedSwitcher(
         duration: const Duration(milliseconds: 200),
         child: Icon(
-          recipe.isFavorite ? Icons.favorite : Icons.favorite_border,
-          key: ValueKey(recipe.isFavorite),
-          color: recipe.isFavorite
-              ? AppColors.primary
-              : AppColors.textSecondary,
+          isFavorite ? Icons.favorite : Icons.favorite_border,
+          key: ValueKey(isFavorite),
+          color: isFavorite ? AppColors.primary : AppColors.textSecondary,
           size: 26,
         ),
       ),
@@ -462,11 +471,22 @@ class _DeleteButton extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return TextButton.icon(
-      onPressed: () => _confirmDelete(context, ref),
-      icon: const Icon(Icons.delete_outline, size: 18),
-      label: const Text(AppStrings.deleteRecipe),
-      style: TextButton.styleFrom(foregroundColor: Colors.red.shade400),
+    return SizedBox(
+      width: double.infinity,
+      child: OutlinedButton.icon(
+        onPressed: () => _confirmDelete(context, ref),
+        icon: const Icon(Icons.delete_outline, size: 18),
+        label: const Text(AppStrings.deleteRecipe),
+        style: OutlinedButton.styleFrom(
+          foregroundColor: Colors.red.shade400,
+          side: BorderSide(color: Colors.red.shade200, width: 1),
+          padding: const EdgeInsets.symmetric(vertical: 14),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+          ),
+          textStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+        ),
+      ),
     );
   }
 

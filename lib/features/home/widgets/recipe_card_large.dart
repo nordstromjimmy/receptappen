@@ -189,20 +189,17 @@ class _SourceBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: AppColors.primary,
         borderRadius: BorderRadius.circular(6),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(Icons.link, size: 10, color: AppColors.textSecondary),
+          const Icon(Icons.link, size: 10, color: AppColors.background),
           const SizedBox(width: 3),
           Text(
             name,
-            style: const TextStyle(
-              fontSize: 10,
-              color: AppColors.textSecondary,
-            ),
+            style: const TextStyle(fontSize: 10, color: AppColors.background),
           ),
         ],
       ),

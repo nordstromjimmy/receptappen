@@ -30,9 +30,9 @@ class RecipeCardSmall extends StatelessWidget {
                     ? CachedNetworkImage(
                         imageUrl: recipe.imageUrl!,
                         fit: BoxFit.cover,
-                        placeholder: (_, __) =>
+                        placeholder: (_, _) =>
                             _SmallPlaceholder(recipe: recipe),
-                        errorWidget: (_, __, ___) =>
+                        errorWidget: (_, _, ___) =>
                             _SmallPlaceholder(recipe: recipe),
                       )
                     : _SmallPlaceholder(recipe: recipe),
@@ -50,7 +50,7 @@ class RecipeCardSmall extends StatelessWidget {
                     style: const TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w500,
-                      color: AppColors.textPrimary,
+                      color: AppColors.textSecondary,
                     ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,

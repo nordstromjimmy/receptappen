@@ -9,6 +9,7 @@ import '../providers/recipes_provider.dart';
 import '../widgets/recipe_card_large.dart';
 import '../widgets/recipe_card_small.dart';
 import '../widgets/category_chips.dart';
+import '../../favorites/screens/favorites_screen.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -18,8 +19,46 @@ class HomeScreen extends ConsumerStatefulWidget {
 }
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
-  final _searchController = TextEditingController();
   int _navIndex = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      floatingActionButton: _navIndex == 0
+          ? FloatingActionButton(
+              onPressed: () => context.push('/add-recipe'),
+              backgroundColor: AppColors.primary,
+              child: const Icon(Icons.add, color: Colors.white),
+            )
+          : null,
+      body: IndexedStack(
+        index: _navIndex,
+        children: const [
+          _HomeTab(),
+          FavoritesScreen(),
+          _PlaceholderTab(label: 'Inköp 🛒'),
+          _PlaceholderTab(label: 'Profil 👤'),
+        ],
+      ),
+      bottomNavigationBar: AppBottomNavBar(
+        currentIndex: _navIndex,
+        onTap: (i) => setState(() => _navIndex = i),
+      ),
+    );
+  }
+}
+
+// ── Home tab ───────────────────────────────────────────────────────────────
+
+class _HomeTab extends ConsumerStatefulWidget {
+  const _HomeTab();
+
+  @override
+  ConsumerState<_HomeTab> createState() => _HomeTabState();
+}
+
+class _HomeTabState extends ConsumerState<_HomeTab> {
+  final _searchController = TextEditingController();
 
   @override
   void dispose() {
@@ -32,124 +71,113 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final allRecipes = ref.watch(recipesProvider);
     final filtered = ref.watch(filteredRecipesProvider);
     final recent = ref.watch(recentRecipesProvider);
-    final favorites = ref.watch(favoriteRecipesProvider);
     final query = ref.watch(searchQueryProvider);
     final selectedCat = ref.watch(selectedCategoryProvider);
 
-    final isSearching = query.isNotEmpty;
-    final isFiltered = selectedCat != RecipeCategory.all || isSearching;
+    final isFiltered = selectedCat != RecipeCategory.all || query.isNotEmpty;
 
-    return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => context.push('/add-recipe'),
-        backgroundColor: AppColors.primary,
-        child: const Icon(Icons.add, color: Colors.white),
-      ),
-      body: SafeArea(
-        child: CustomScrollView(
-          slivers: [
-            // ── Header ─────────────────────────────────────────
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            AppStrings.myRecipes,
-                            style: Theme.of(context).textTheme.headlineMedium
-                                ?.copyWith(
-                                  fontWeight: FontWeight.w500,
-                                  color: Theme.of(
-                                    context,
-                                  ).colorScheme.onSurface,
-                                ),
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            AppStrings.recipesCount(allRecipes.length),
-                            style: const TextStyle(
-                              fontSize: 13,
-                              color: AppColors.textSecondary,
-                            ),
-                          ),
-                        ],
-                      ),
+    return SafeArea(
+      child: CustomScrollView(
+        slivers: [
+          // ── Header ───────────────────────────────────────
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    AppStrings.myRecipes,
+                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                      fontWeight: FontWeight.w500,
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
-                  ],
-                ),
-              ),
-            ),
-
-            // ── Search bar ────────────────────────────────────
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
-                child: TextField(
-                  controller: _searchController,
-                  onChanged: (v) =>
-                      ref.read(searchQueryProvider.notifier).state = v,
-                  decoration: InputDecoration(
-                    hintText: AppStrings.searchHint,
-                    prefixIcon: const Icon(
-                      Icons.search,
-                      color: AppColors.textSecondary,
-                      size: 20,
-                    ),
-                    suffixIcon: query.isNotEmpty
-                        ? IconButton(
-                            icon: const Icon(
-                              Icons.close,
-                              size: 18,
-                              color: AppColors.textSecondary,
-                            ),
-                            onPressed: () {
-                              _searchController.clear();
-                              ref.read(searchQueryProvider.notifier).state = '';
-                            },
-                          )
-                        : null,
                   ),
+                  const SizedBox(height: 2),
+                  Text(
+                    AppStrings.recipesCount(allRecipes.length),
+                    style: const TextStyle(
+                      fontSize: 13,
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          // ── Search bar ──────────────────────────────────
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
+              child: TextField(
+                controller: _searchController,
+                onChanged: (v) =>
+                    ref.read(searchQueryProvider.notifier).state = v,
+                decoration: InputDecoration(
+                  hintText: AppStrings.searchHint,
+                  prefixIcon: const Icon(
+                    Icons.search,
+                    color: AppColors.textSecondary,
+                    size: 20,
+                  ),
+                  suffixIcon: query.isNotEmpty
+                      ? IconButton(
+                          icon: const Icon(
+                            Icons.close,
+                            size: 18,
+                            color: AppColors.textSecondary,
+                          ),
+                          onPressed: () {
+                            _searchController.clear();
+                            ref.read(searchQueryProvider.notifier).state = '';
+                          },
+                        )
+                      : null,
                 ),
               ),
             ),
+          ),
 
-            // ── Category chips ────────────────────────────────
-            const SliverToBoxAdapter(child: CategoryChips()),
+          // ── Category chips ───────────────────────────────
+          const SliverToBoxAdapter(child: CategoryChips()),
 
-            const SliverToBoxAdapter(child: SizedBox(height: 8)),
+          const SliverToBoxAdapter(child: SizedBox(height: 8)),
 
-            // ── Content ───────────────────────────────────────
-            if (isFiltered)
-              _FilteredContent(recipes: filtered)
-            else ...[
-              if (recent.isNotEmpty)
-                _RecipesSection(
-                  title: AppStrings.recentlyAdded,
-                  child: _LargeCardList(recipes: recent),
-                ),
-              if (favorites.isNotEmpty)
-                _RecipesSection(
-                  title: AppStrings.favoritesTitle,
-                  child: _SmallCardGrid(recipes: favorites),
-                ),
-              if (allRecipes.isEmpty)
-                const SliverToBoxAdapter(child: _EmptyState()),
-            ],
+          // ── Explore banner ───────────────────────────────────────────────────
+          if (!isFiltered && allRecipes.length >= 2)
+            const SliverToBoxAdapter(child: _ExploreBanner()),
+          // ── Content ─────────────────────────────────────
+          if (isFiltered)
+            _FilteredContent(recipes: filtered)
+          else ...[
+            if (recent.isNotEmpty)
+              _RecipesSection(
+                title: AppStrings.recentlyAdded,
+                child: _LargeCardList(recipes: recent),
+              ),
 
-            // Bottom padding for nav bar
-            const SliverToBoxAdapter(child: SizedBox(height: 100)),
+            if (allRecipes.isEmpty)
+              const SliverToBoxAdapter(child: _EmptyState()),
           ],
-        ),
+
+          const SliverToBoxAdapter(child: SizedBox(height: 100)),
+        ],
       ),
-      bottomNavigationBar: AppBottomNavBar(
-        currentIndex: _navIndex,
-        onTap: (i) => setState(() => _navIndex = i),
-      ),
+    );
+  }
+}
+
+// ── Placeholder tabs ───────────────────────────────────────────────────────
+
+class _PlaceholderTab extends StatelessWidget {
+  const _PlaceholderTab({required this.label});
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Text(label, style: Theme.of(context).textTheme.titleLarge),
     );
   }
 }
@@ -203,30 +231,6 @@ class _LargeCardList extends StatelessWidget {
               ),
             )
             .toList(),
-      ),
-    );
-  }
-}
-
-class _SmallCardGrid extends StatelessWidget {
-  const _SmallCardGrid({required this.recipes});
-  final List<Recipe> recipes;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: GridView.builder(
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
-          crossAxisSpacing: 10,
-          mainAxisSpacing: 10,
-          childAspectRatio: 0.9,
-        ),
-        itemCount: recipes.length,
-        itemBuilder: (_, i) => RecipeCardSmall(recipe: recipes[i]),
       ),
     );
   }
@@ -304,6 +308,71 @@ class _EmptySearch extends StatelessWidget {
         child: Text(
           AppStrings.emptySearch,
           style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
+        ),
+      ),
+    );
+  }
+}
+
+// ── Explore banner ─────────────────────────────────────────────────────────
+
+class _ExploreBanner extends StatelessWidget {
+  const _ExploreBanner();
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () => context.push('/explore'),
+      child: Container(
+        margin: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+        padding: const EdgeInsets.fromLTRB(18, 14, 14, 14),
+        decoration: BoxDecoration(
+          color: AppColors.textPrimary,
+          borderRadius: BorderRadius.circular(18),
+        ),
+        child: Row(
+          children: [
+            const Text('🍽️', style: TextStyle(fontSize: 28)),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Utforska dina recept',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    'Bläddra bland dina recept och hitta inspiration',
+                    style: TextStyle(
+                      color: Colors.white.withValues(alpha: 0.6),
+                      fontSize: 12,
+                      height: 1.4,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 8),
+            Container(
+              width: 32,
+              height: 32,
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.15),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.arrow_forward_ios,
+                color: Colors.white,
+                size: 14,
+              ),
+            ),
+          ],
         ),
       ),
     );
