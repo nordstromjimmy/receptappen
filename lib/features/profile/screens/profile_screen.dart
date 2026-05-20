@@ -1,12 +1,10 @@
 import 'dart:convert';
 import 'dart:io';
-
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
-
 import '../../../core/constants/app_colors.dart';
 import '../../../data/models/recipe.dart';
 import '../../home/providers/recipes_provider.dart';
@@ -40,6 +38,9 @@ class ProfileScreen extends ConsumerWidget {
             const SizedBox(height: 28),
 
             _SectionLabel('Din data'),
+            _SectionDesc(
+              'Om du behöver installera om appen eller vill installera appen på en ny enhet kan du exportera din data för att sedan importera filen på din nya enhet så att du inte förlorar dina sparade recept.',
+            ),
             const SizedBox(height: 10),
             _DataCard(recipes: recipes),
 
@@ -68,6 +69,24 @@ class _SectionLabel extends StatelessWidget {
       style: const TextStyle(
         fontSize: 11,
         fontWeight: FontWeight.w500,
+        letterSpacing: 0.8,
+        color: AppColors.textSecondary,
+      ),
+    );
+  }
+}
+
+class _SectionDesc extends StatelessWidget {
+  const _SectionDesc(this.text);
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      text,
+      style: const TextStyle(
+        fontSize: 11,
+        fontWeight: FontWeight.w200,
         letterSpacing: 0.8,
         color: AppColors.textSecondary,
       ),
