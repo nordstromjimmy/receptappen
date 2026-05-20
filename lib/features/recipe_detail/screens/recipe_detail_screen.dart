@@ -499,6 +499,7 @@ class _DeleteButton extends ConsumerWidget {
             onPressed: () => Navigator.pop(context, false),
             child: const Text(AppStrings.cancel),
           ),
+          Spacer(),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
             style: TextButton.styleFrom(foregroundColor: Colors.red),
