@@ -32,7 +32,7 @@ class CategoryChips extends ConsumerWidget {
             );
           }
           return _Chip(
-            label: '${cat.emoji} ${cat.label}',
+            label: cat.label,
             isSelected: selected == cat,
             onTap: () =>
                 ref.read(selectedCategoryProvider.notifier).state = cat,

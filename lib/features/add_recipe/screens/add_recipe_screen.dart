@@ -263,7 +263,17 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
                   .map(
                     (c) => DropdownMenuItem(
                       value: c,
-                      child: Text('${c.emoji}  ${c.label}'),
+                      child: Row(
+                        children: [
+                          Icon(
+                            c.icon,
+                            size: 18,
+                            color: AppColors.textSecondary,
+                          ),
+                          const SizedBox(width: 10),
+                          Text(c.label),
+                        ],
+                      ),
                     ),
                   )
                   .toList(),

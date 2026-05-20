@@ -317,13 +317,24 @@ class _RecipeSwipeCard extends StatelessWidget {
                             color: Colors.white.withValues(alpha: 0.9),
                             borderRadius: BorderRadius.circular(20),
                           ),
-                          child: Text(
-                            '${recipe.category.emoji}  ${recipe.category.label}',
-                            style: const TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w500,
-                              color: AppColors.textSecondary,
-                            ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                recipe.category.icon,
+                                size: 14,
+                                color: AppColors.textSecondary,
+                              ),
+                              const SizedBox(width: 5),
+                              Text(
+                                recipe.category.label,
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500,
+                                  color: AppColors.textSecondary,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ),
@@ -462,10 +473,7 @@ class _CardPlaceholder extends StatelessWidget {
     return ColoredBox(
       color: recipe.category.color,
       child: Center(
-        child: Text(
-          recipe.category.emoji,
-          style: const TextStyle(fontSize: 80),
-        ),
+        child: Icon(recipe.category.icon, size: 80, color: Colors.white),
       ),
     );
   }

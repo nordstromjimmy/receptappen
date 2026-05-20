@@ -192,10 +192,7 @@ class _HeroPlaceholder extends StatelessWidget {
     return ColoredBox(
       color: recipe.category.color,
       child: Center(
-        child: Text(
-          recipe.category.emoji,
-          style: const TextStyle(fontSize: 72),
-        ),
+        child: Icon(recipe.category.icon, size: 48, color: Colors.white),
       ),
     );
   }

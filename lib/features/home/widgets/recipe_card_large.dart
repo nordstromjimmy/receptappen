@@ -81,10 +81,7 @@ class _PlaceholderImage extends StatelessWidget {
       children: [
         ColoredBox(color: recipe.category.color),
         Center(
-          child: Text(
-            recipe.category.emoji,
-            style: const TextStyle(fontSize: 48),
-          ),
+          child: Icon(recipe.category.icon, size: 48, color: Colors.white),
         ),
         Positioned(
           top: 8,

@@ -6,18 +6,34 @@ import '../../core/constants/app_strings.dart';
 // ── Category enum ──────────────────────────────────────────────────────────
 
 enum RecipeCategory {
-  all(AppStrings.catAll, '🍽️', AppColors.surface),
-  vardagsmat(AppStrings.catEveryday, '🍝', AppColors.imgEveryday),
-  bakning(AppStrings.catBaking, '🍰', AppColors.imgBaking),
-  vegetariskt(AppStrings.catVegetarian, '🥗', AppColors.imgVegetarian),
-  soppa(AppStrings.catSoup, '🍲', AppColors.imgSoup),
-  dessert(AppStrings.catDessert, '🍮', AppColors.imgDessert),
-  frukost(AppStrings.catBreakfast, '🥞', AppColors.imgBreakfast);
+  all(AppStrings.catAll, Icons.restaurant_outlined, AppColors.surface),
+  vardagsmat(
+    AppStrings.catEveryday,
+    Icons.dinner_dining_outlined,
+    AppColors.imgEveryday,
+  ),
+  bakning(
+    AppStrings.catBaking,
+    Icons.bakery_dining_outlined,
+    AppColors.imgBaking,
+  ),
+  vegetariskt(
+    AppStrings.catVegetarian,
+    Icons.eco_outlined,
+    AppColors.imgVegetarian,
+  ),
+  soppa(AppStrings.catSoup, Icons.ramen_dining_outlined, AppColors.imgSoup),
+  dessert(AppStrings.catDessert, Icons.cake_outlined, AppColors.imgDessert),
+  frukost(
+    AppStrings.catBreakfast,
+    Icons.free_breakfast_outlined,
+    AppColors.imgBreakfast,
+  );
 
-  const RecipeCategory(this.label, this.emoji, this.color);
+  const RecipeCategory(this.label, this.icon, this.color);
 
   final String label;
-  final String emoji;
+  final IconData icon;
   final Color color;
 }
 

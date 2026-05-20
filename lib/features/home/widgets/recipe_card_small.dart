@@ -94,10 +94,7 @@ class _SmallPlaceholder extends StatelessWidget {
     return ColoredBox(
       color: recipe.category.color,
       child: Center(
-        child: Text(
-          recipe.category.emoji,
-          style: const TextStyle(fontSize: 30),
-        ),
+        child: Icon(recipe.category.icon, size: 48, color: Colors.white),
       ),
     );
   }
