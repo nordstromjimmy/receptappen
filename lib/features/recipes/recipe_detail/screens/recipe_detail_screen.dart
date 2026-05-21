@@ -436,9 +436,9 @@ class _FavoriteButton extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final isFavorite = ref.watch(
       recipesProvider.select(
-        (recipes) => recipes
-            .firstWhere((r) => r.id == recipeId, orElse: () => recipes.first)
-            .isFavorite,
+        (recipes) =>
+            recipes.where((r) => r.id == recipeId).firstOrNull?.isFavorite ??
+            false,
       ),
     );
 

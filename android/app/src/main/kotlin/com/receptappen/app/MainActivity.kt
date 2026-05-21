@@ -1,4 +1,4 @@
-package com.example.receptappen
+package com.receptappen.app
 
 import io.flutter.embedding.android.FlutterActivity
 
