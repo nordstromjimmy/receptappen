@@ -6,6 +6,8 @@
 	<string>Används för att ta bilder till dina recept</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Används för att välja bilder till dina recept</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Används för att spara bilder till dina recept</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
