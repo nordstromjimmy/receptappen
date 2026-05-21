@@ -1,7 +1,11 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:path_provider/path_provider.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_strings.dart';
@@ -36,6 +40,8 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
   final List<TextEditingController> _instructionCtrls = [];
 
   bool _isSaving = false;
+  File? _localImageFile;
+  String? _existingLocalImagePath;
 
   @override
   void initState() {
@@ -56,6 +62,7 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
     );
     _servingsCtrl = TextEditingController(text: r?.servings.toString() ?? '4');
     _category = r?.category ?? RecipeCategory.vardagsmat;
+    _existingLocalImagePath = r?.localImagePath;
 
     // Seed ingredient / instruction controllers
     final ingredients = r?.ingredients ?? [];
@@ -110,6 +117,93 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
     });
   }
 
+  // ── Image picker ───────────────────────────────────────
+
+  Future<void> _pickImage(ImageSource source) async {
+    final picker = ImagePicker();
+    final picked = await picker.pickImage(
+      source: source,
+      maxWidth: 1200,
+      maxHeight: 1200,
+      imageQuality: 85,
+    );
+    if (picked == null) return;
+
+    // Copy to app documents so it persists even if cache is cleared
+    final dir = await getApplicationDocumentsDirectory();
+    final ext = picked.path.contains('.')
+        ? '.${picked.path.split('.').last}'
+        : '.jpg';
+    final fileName = 'recipe_img_${DateTime.now().millisecondsSinceEpoch}$ext';
+    final saved = await File(picked.path).copy('${dir.path}/$fileName');
+
+    setState(() {
+      _localImageFile = saved;
+      // Clear the URL field — local image takes priority
+      _imageCtrl.clear();
+    });
+  }
+
+  void _removeLocalImage() {
+    setState(() {
+      _localImageFile = null;
+      _existingLocalImagePath = null;
+    });
+  }
+
+  void _showImageSourceSheet() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (_) => Container(
+        padding: const EdgeInsets.fromLTRB(20, 20, 20, 36),
+        decoration: BoxDecoration(
+          color: Theme.of(context).scaffoldBackgroundColor,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        child: SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text(
+                'Välj bildkälla',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+              ),
+              const SizedBox(height: 20),
+              Row(
+                children: [
+                  Expanded(
+                    child: _ImageSourceButton(
+                      icon: Icons.camera_alt_outlined,
+                      label: 'Kamera',
+                      onTap: () {
+                        Navigator.pop(context);
+                        _pickImage(ImageSource.camera);
+                      },
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: _ImageSourceButton(
+                      icon: Icons.photo_library_outlined,
+                      label: 'Bildbibliotek',
+                      onTap: () {
+                        Navigator.pop(context);
+                        _pickImage(ImageSource.gallery);
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ── Save ───────────────────────────────────────────────
+
   Future<void> _save() async {
     if (!_formKey.currentState!.validate()) return;
     setState(() => _isSaving = true);
@@ -123,11 +217,15 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
         .where((t) => t.isNotEmpty)
         .toList();
 
+    // Determine final local image path
+    final localPath = _localImageFile?.path ?? _existingLocalImagePath;
+
     final recipe = Recipe(
       id: widget.existingRecipe?.id,
       name: _nameCtrl.text.trim(),
       description: _descCtrl.text.trim().isEmpty ? null : _descCtrl.text.trim(),
       imageUrl: _imageCtrl.text.trim().isEmpty ? null : _imageCtrl.text.trim(),
+      localImagePath: localPath,
       sourceUrl: _urlCtrl.text.trim().isEmpty ? null : _urlCtrl.text.trim(),
       sourceName: _sourceCtrl.text.trim().isEmpty
           ? null
@@ -165,9 +263,13 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
     }
   }
 
+  // ── Build ──────────────────────────────────────────────
+
   @override
   Widget build(BuildContext context) {
     final isEdit = widget.existingRecipe != null;
+    final hasLocalImg =
+        _localImageFile != null || _existingLocalImagePath != null;
 
     return Scaffold(
       appBar: AppBar(
@@ -180,7 +282,7 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
           style: const TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w500,
-            color: AppColors.textSecondary,
+            color: AppColors.textPrimary,
           ),
         ),
         actions: [
@@ -243,16 +345,26 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
               maxLines: 3,
               textCapitalization: TextCapitalization.sentences,
             ),
+
+            // Only show URL image field if no local image is selected
             const SizedBox(height: 10),
-            _FormField(
-              controller: _imageCtrl,
-              label: AppStrings.fieldImageUrl,
-              keyboardType: TextInputType.url,
+            if (!hasLocalImg)
+              _FormField(
+                controller: _imageCtrl,
+                label: AppStrings.fieldImageUrl,
+                keyboardType: TextInputType.url,
+              ),
+            const SizedBox(height: 8),
+            _CompactImageButton(
+              localImageFile: _localImageFile,
+              existingLocalImagePath: _existingLocalImagePath,
+              hasLocalImg: hasLocalImg,
+              onPickTap: _showImageSourceSheet,
+              onRemove: _removeLocalImage,
             ),
 
             const SizedBox(height: 10),
 
-            // ── Category dropdown ───────────────────────────
             DropdownButtonFormField<RecipeCategory>(
               initialValue: _category,
               decoration: const InputDecoration(
@@ -331,7 +443,8 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
                       child: TextFormField(
                         controller: e.value,
                         decoration: InputDecoration(
-                          hintText: AppStrings.fieldIngredient,
+                          hintText:
+                              '${AppStrings.fieldIngredient} ${e.key + 1}',
                         ),
                         textCapitalization: TextCapitalization.sentences,
                       ),
@@ -371,7 +484,6 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Step number circle
                     Container(
                       width: 28,
                       height: 28,
@@ -432,6 +544,114 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
   }
 }
 
+// ── Image picker widget ────────────────────────────────────────────────────
+
+class _CompactImageButton extends StatelessWidget {
+  const _CompactImageButton({
+    required this.localImageFile,
+    required this.existingLocalImagePath,
+    required this.hasLocalImg,
+    required this.onPickTap,
+    required this.onRemove,
+  });
+
+  final File? localImageFile;
+  final String? existingLocalImagePath;
+  final bool hasLocalImg;
+  final VoidCallback onPickTap;
+  final VoidCallback onRemove;
+
+  @override
+  Widget build(BuildContext context) {
+    final imageFile =
+        localImageFile ??
+        (existingLocalImagePath != null ? File(existingLocalImagePath!) : null);
+
+    if (hasLocalImg && imageFile != null) {
+      // Show small thumbnail + remove button
+      return Row(
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(10),
+            child: Image.file(
+              imageFile,
+              width: 56,
+              height: 56,
+              fit: BoxFit.cover,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              'Eget foto valt',
+              style: const TextStyle(
+                fontSize: 13,
+                color: AppColors.textSecondary,
+              ),
+            ),
+          ),
+          TextButton.icon(
+            onPressed: onPickTap,
+            icon: const Icon(Icons.edit_outlined, size: 16),
+            label: const Text('Byt'),
+            style: TextButton.styleFrom(
+              foregroundColor: AppColors.primary,
+              textStyle: const TextStyle(fontSize: 13),
+              padding: EdgeInsets.zero,
+            ),
+          ),
+          const SizedBox(width: 4),
+          TextButton.icon(
+            onPressed: onRemove,
+            icon: const Icon(Icons.close, size: 16),
+            label: const Text('Ta bort'),
+            style: TextButton.styleFrom(
+              foregroundColor: Colors.red.shade400,
+              textStyle: const TextStyle(fontSize: 13),
+              padding: EdgeInsets.zero,
+            ),
+          ),
+        ],
+      );
+    }
+
+    // Show small add button
+    return GestureDetector(
+      onTap: onPickTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        decoration: BoxDecoration(
+          color: AppColors.primary.withValues(alpha: 0.08),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: AppColors.primary.withValues(alpha: 0.2),
+            width: 0.5,
+          ),
+        ),
+        child: const Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.add_a_photo_outlined,
+              size: 16,
+              color: AppColors.primary,
+            ),
+            SizedBox(width: 8),
+            Text(
+              'Lägg till eget foto',
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
+                color: AppColors.primary,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 // ── Helper widgets ─────────────────────────────────────────────────────────
 
 class _SectionHeader extends StatelessWidget {
@@ -481,6 +701,48 @@ class _FormField extends StatelessWidget {
       maxLines: maxLines,
       inputFormatters: inputFormatters,
       textCapitalization: textCapitalization,
+    );
+  }
+}
+
+// ── Image source button ────────────────────────────────────────────────────
+
+class _ImageSourceButton extends StatelessWidget {
+  const _ImageSourceButton({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 20),
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Column(
+          children: [
+            Icon(icon, size: 28, color: AppColors.primary),
+            const SizedBox(height: 8),
+            Text(
+              label,
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+                color: AppColors.textSecondary,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

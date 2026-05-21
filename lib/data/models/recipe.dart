@@ -44,6 +44,7 @@ class Recipe {
   final String name;
   final String? description;
   final String? imageUrl;
+  final String? localImagePath;
   final String? sourceUrl;
   final String? sourceName;
   final RecipeCategory category;
@@ -60,6 +61,7 @@ class Recipe {
     required this.name,
     this.description,
     this.imageUrl,
+    this.localImagePath,
     this.sourceUrl,
     this.sourceName,
     this.category = RecipeCategory.vardagsmat,
@@ -80,7 +82,13 @@ class Recipe {
     return (prepTimeMinutes ?? 0) + (cookTimeMinutes ?? 0);
   }
 
-  bool get hasImage => imageUrl != null && imageUrl!.trim().isNotEmpty;
+  bool get hasImage =>
+      (localImagePath != null && localImagePath!.isNotEmpty) ||
+      (imageUrl != null && imageUrl!.trim().isNotEmpty);
+
+  bool get hasLocalImage =>
+      localImagePath != null && localImagePath!.isNotEmpty;
+
   bool get hasSource => sourceUrl != null && sourceUrl!.isNotEmpty;
 
   // ── CopyWith ────────────────────────────────────────────
@@ -90,6 +98,7 @@ class Recipe {
     String? name,
     String? description,
     String? imageUrl,
+    String? localImagePath,
     String? sourceUrl,
     String? sourceName,
     RecipeCategory? category,
@@ -100,12 +109,17 @@ class Recipe {
     List<String>? instructions,
     bool? isFavorite,
     DateTime? createdAt,
+    bool clearLocalImage = false,
+    bool clearImageUrl = false,
   }) {
     return Recipe(
       id: id ?? this.id,
       name: name ?? this.name,
       description: description ?? this.description,
-      imageUrl: imageUrl ?? this.imageUrl,
+      imageUrl: clearImageUrl ? null : (imageUrl ?? this.imageUrl),
+      localImagePath: clearLocalImage
+          ? null
+          : (localImagePath ?? this.localImagePath),
       sourceUrl: sourceUrl ?? this.sourceUrl,
       sourceName: sourceName ?? this.sourceName,
       category: category ?? this.category,
@@ -126,6 +140,7 @@ class Recipe {
     'name': name,
     'description': description,
     'imageUrl': imageUrl,
+    'localImagePath': localImagePath,
     'sourceUrl': sourceUrl,
     'sourceName': sourceName,
     'category': category.name,
@@ -143,6 +158,7 @@ class Recipe {
     name: json['name'] as String,
     description: json['description'] as String?,
     imageUrl: json['imageUrl'] as String?,
+    localImagePath: json['localImagePath'] as String?,
     sourceUrl: json['sourceUrl'] as String?,
     sourceName: json['sourceName'] as String?,
     category: RecipeCategory.values.firstWhere(

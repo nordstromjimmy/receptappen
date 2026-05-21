@@ -339,7 +339,7 @@ class _DataCard extends ConsumerWidget {
 
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('${recipes.length} recept importerade! 🎉')),
+          SnackBar(content: Text('${recipes.length} recept importerade!')),
         );
       }
     } catch (e) {

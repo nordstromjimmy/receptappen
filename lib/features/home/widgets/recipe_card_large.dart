@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:receptappen/shared/widgets/recipe_image.dart';
 
 import '../../../core/constants/app_colors.dart';
 import '../../../data/models/recipe.dart';
@@ -28,16 +29,7 @@ class RecipeCardLarge extends ConsumerWidget {
               child: SizedBox(
                 height: 130,
                 width: double.infinity,
-                child: recipe.hasImage
-                    ? CachedNetworkImage(
-                        imageUrl: recipe.imageUrl!,
-                        fit: BoxFit.cover,
-                        placeholder: (_, __) =>
-                            _PlaceholderImage(recipe: recipe),
-                        errorWidget: (_, __, ___) =>
-                            _PlaceholderImage(recipe: recipe),
-                      )
-                    : _PlaceholderImage(recipe: recipe),
+                child: RecipeImage(recipe: recipe, placeholderIconSize: 48),
               ),
             ),
 

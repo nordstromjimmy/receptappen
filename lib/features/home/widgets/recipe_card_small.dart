@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:receptappen/shared/widgets/recipe_image.dart';
 
 import '../../../core/constants/app_colors.dart';
 import '../../../data/models/recipe.dart';
@@ -26,16 +27,7 @@ class RecipeCardSmall extends StatelessWidget {
               child: SizedBox(
                 height: 80,
                 width: double.infinity,
-                child: recipe.hasImage
-                    ? CachedNetworkImage(
-                        imageUrl: recipe.imageUrl!,
-                        fit: BoxFit.cover,
-                        placeholder: (_, _) =>
-                            _SmallPlaceholder(recipe: recipe),
-                        errorWidget: (_, _, ___) =>
-                            _SmallPlaceholder(recipe: recipe),
-                      )
-                    : _SmallPlaceholder(recipe: recipe),
+                child: RecipeImage(recipe: recipe, placeholderIconSize: 30),
               ),
             ),
 
