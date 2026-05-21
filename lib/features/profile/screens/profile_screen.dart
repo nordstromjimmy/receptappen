@@ -479,7 +479,7 @@ class _AboutCardState extends State<_AboutCard> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Text(
-                'Matrecept',
+                'ReceptAppen',
                 style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
               ),
               Text(

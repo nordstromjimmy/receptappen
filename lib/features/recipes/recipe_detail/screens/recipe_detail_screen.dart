@@ -488,6 +488,7 @@ class _DeleteButton extends ConsumerWidget {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
+        actionsAlignment: MainAxisAlignment.spaceAround,
         title: const Text(AppStrings.confirmDelete),
         content: const Text(AppStrings.confirmDeleteMsg),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -496,7 +497,6 @@ class _DeleteButton extends ConsumerWidget {
             onPressed: () => Navigator.pop(context, false),
             child: const Text(AppStrings.cancel),
           ),
-          Spacer(),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
             style: TextButton.styleFrom(foregroundColor: Colors.red),
